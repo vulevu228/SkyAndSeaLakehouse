@@ -1,0 +1,2 @@
+EVALUATE
+SUMMARIZECOLUMNS(DimDate[date], DimDate[is_weekend], "aircraft", [Aircraft Seen], "ships", [Ships Seen])

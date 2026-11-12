@@ -1,0 +1,3 @@
+EVALUATE
+SUMMARIZECOLUMNS(DimPort[locode], DimShip[ship_group], FactPortCalls[dwell_band], FILTER(ALL(FactPortCalls[is_seagoing]), FactPortCalls[is_seagoing] = TRUE()),
+    "calls", [Calls])

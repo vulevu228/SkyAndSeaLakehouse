@@ -1,0 +1,554 @@
+table _Measures
+	lineageTag: cce6d3c6-4b74-5f18-a4f2-56f7a04092b6
+
+	measure 'Aircraft Seen' = DISTINCTCOUNT(FactAircraftDaily[icao24])
+		formatString: #,##0
+		displayFolder: 1 Pulse
+		lineageTag: dbd2f4bf-5c0e-563d-816a-8fe7ffa9f57c
+
+	measure 'Ships Seen' = CALCULATE(DISTINCTCOUNT(FactShipDaily[mmsi]), DimShip[mmsi_kind] = "ship")
+		formatString: #,##0
+		displayFolder: 1 Pulse
+		lineageTag: 8bf9b5a2-731d-534e-83fa-c6b4763e330e
+
+	measure 'Days With Data' = COUNTROWS(FILTER(VALUES(DimDate[date_key]), NOT ISBLANK([Aircraft Seen]) || NOT ISBLANK([Ships Seen])))
+		formatString: 0
+		displayFolder: 1 Pulse
+		lineageTag: 1ba075bb-99f9-5bc7-baf8-f000a0900d74
+
+	measure 'Aircraft per Day' = AVERAGEX(VALUES(DimDate[date_key]), [Aircraft Seen])
+		formatString: #,##0
+		displayFolder: 1 Pulse
+		lineageTag: dcf33a5a-37a8-50ac-a2b3-1df46f97bf1c
+
+	measure 'Ships per Day' = AVERAGEX(VALUES(DimDate[date_key]), [Ships Seen])
+		formatString: #,##0
+		displayFolder: 1 Pulse
+		lineageTag: d2cc636a-fedb-5e10-b5f2-d726afe934ec
+
+	measure 'Airborne per Hour' = AVERAGE(FactTrafficHourly[aircraft_airborne])
+		formatString: #,##0
+		displayFolder: 1 Pulse
+		lineageTag: 9f6901a9-bc24-5204-9221-b88f7a5a7886
+
+	measure 'Ships Moving per Hour' = AVERAGE(FactTrafficHourly[ships_moving])
+		formatString: #,##0
+		displayFolder: 1 Pulse
+		lineageTag: 82db64b8-ff07-5824-a465-096e7ea4e947
+
+	measure 'Ships per Hour' = AVERAGE(FactTrafficHourly[ships])
+		formatString: #,##0
+		displayFolder: 1 Pulse
+		lineageTag: 78aa14a9-2f4f-5988-8cba-9b9d836fa17c
+
+	measure 'Moving Share' = DIVIDE([Ships Moving per Hour], [Ships per Hour])
+		formatString: 0%
+		displayFolder: 1 Pulse
+		lineageTag: 2bd137ad-a2a4-5c5c-89e2-1f0e54247ede
+
+	measure 'Air Peak Hour' = MAXX(TOPN(1, VALUES(FactTrafficHourly[hour_of_day]), [Airborne per Hour], DESC), FactTrafficHourly[hour_of_day])
+		formatString: 0
+		displayFolder: 1 Pulse
+		lineageTag: 8b85e66c-2e6a-51b6-bb9f-48f04cfd6c2d
+
+	measure 'Air Low Hour' = MAXX(TOPN(1, VALUES(FactTrafficHourly[hour_of_day]), [Airborne per Hour], ASC), FactTrafficHourly[hour_of_day])
+		formatString: 0
+		displayFolder: 1 Pulse
+		lineageTag: 1979fb4a-6d23-5a74-ab2f-d3aac77dfa94
+
+	measure 'Air Peak Value' = MAXX(VALUES(FactTrafficHourly[hour_of_day]), [Airborne per Hour])
+		formatString: #,##0
+		displayFolder: 1 Pulse
+		lineageTag: 241c09dc-9324-5a1a-a4c6-d08ffed0a372
+
+	measure 'Air Low Value' = MINX(VALUES(FactTrafficHourly[hour_of_day]), [Airborne per Hour])
+		formatString: #,##0
+		displayFolder: 1 Pulse
+		lineageTag: 6285d0d1-540e-5406-a477-fa3ef3e0c75d
+
+	measure 'Air Hour Color' = IF(SELECTEDVALUE(FactTrafficHourly[hour_of_day]) = CALCULATE([Air Peak Hour], ALLSELECTED(FactTrafficHourly[hour_of_day])), "#16191D", "#2A78D6")
+		displayFolder: 1 Pulse
+		lineageTag: 1d37a3c1-7bd5-5041-b950-8544bc73076b
+
+	measure 'Sea Peak Hour' = MAXX(TOPN(1, VALUES(FactTrafficHourly[hour_of_day]), [Ships Moving per Hour], DESC), FactTrafficHourly[hour_of_day])
+		formatString: 0
+		displayFolder: 1 Pulse
+		lineageTag: 11c8576a-3271-5a11-a6cf-435ca1ae9c45
+
+	measure 'Sea Low Hour' = MAXX(TOPN(1, VALUES(FactTrafficHourly[hour_of_day]), [Ships Moving per Hour], ASC), FactTrafficHourly[hour_of_day])
+		formatString: 0
+		displayFolder: 1 Pulse
+		lineageTag: ebb732d3-d90a-55ed-a3ff-e8ca4f322215
+
+	measure 'Sea Peak Value' = MAXX(VALUES(FactTrafficHourly[hour_of_day]), [Ships Moving per Hour])
+		formatString: #,##0
+		displayFolder: 1 Pulse
+		lineageTag: a30e6bd3-128a-5e86-8b53-6f75d4d64b3a
+
+	measure 'Sea Low Value' = MINX(VALUES(FactTrafficHourly[hour_of_day]), [Ships Moving per Hour])
+		formatString: #,##0
+		displayFolder: 1 Pulse
+		lineageTag: 28d51b57-6c39-58bd-9488-fe1ff8905735
+
+	measure 'Sea Hour Color' = IF(SELECTEDVALUE(FactTrafficHourly[hour_of_day]) = CALCULATE([Sea Peak Hour], ALLSELECTED(FactTrafficHourly[hour_of_day])), "#16191D", "#1BAF7A")
+		displayFolder: 1 Pulse
+		lineageTag: 5a7bcd37-b989-56b5-b5fe-55b5b3cc0506
+
+	measure 'Air Hero Text' = SUBSTITUTE(FORMAT([Airborne per Hour], "#,##0", "en-GB"), ",", UNICHAR(8239))
+		displayFolder: 1 Pulse
+		lineageTag: 4482269c-9485-52a1-9d53-8b48d8d1f054
+
+	measure 'Sea Hero Text' = SUBSTITUTE(FORMAT([Ships Moving per Hour], "#,##0", "en-GB"), ",", UNICHAR(8239))
+		displayFolder: 1 Pulse
+		lineageTag: ab2160d1-4133-5762-8085-9ade2a507a2a
+
+	measure 'Air Hero Sub' = "peak " & SUBSTITUTE(FORMAT([Air Peak Value], "#,##0", "en-GB"), ",", UNICHAR(8239)) & " at " & FORMAT([Air Peak Hour], "00") & ":00 · low " & SUBSTITUTE(FORMAT([Air Low Value], "#,##0", "en-GB"), ",", UNICHAR(8239)) & " at " & FORMAT([Air Low Hour], "00") & ":00 UTC"
+		displayFolder: 1 Pulse
+		lineageTag: 704e79a6-0db1-56f9-959c-652eacbf35ea
+
+	measure 'Sea Hero Sub' = FORMAT([Moving Share], "0%") & " of " & SUBSTITUTE(FORMAT([Ships per Hour], "#,##0", "en-GB"), ",", UNICHAR(8239)) & " ships under way · peak " & FORMAT([Sea Peak Hour], "00") & ":00 UTC"
+		displayFolder: 1 Pulse
+		lineageTag: 3ee9e49d-89f1-5b66-bcc5-7d9ac4c85c0f
+
+	measure 'Weekend Air Change' =
+			VAR wd = CALCULATE([Aircraft per Day], DimDate[is_weekend] = FALSE())
+			VAR we = CALCULATE([Aircraft per Day], DimDate[is_weekend] = TRUE())
+			RETURN IF(ISBLANK(wd) || ISBLANK(we), BLANK(), DIVIDE(we - wd, wd))
+		formatString: +0%;-0%;0%
+		displayFolder: 1 Pulse
+		lineageTag: 74db10e7-39ed-5402-bb11-7fefb3c3921e
+
+	measure 'Weekend Sea Change' =
+			VAR wd = CALCULATE([Ships per Day], DimDate[is_weekend] = FALSE())
+			VAR we = CALCULATE([Ships per Day], DimDate[is_weekend] = TRUE())
+			RETURN IF(ISBLANK(wd) || ISBLANK(we), BLANK(), DIVIDE(we - wd, wd))
+		formatString: +0%;-0%;0%
+		displayFolder: 1 Pulse
+		lineageTag: e79ef7ec-a9ee-5293-b1c8-458ad156b6f0
+
+	measure 'Weekend Air Text' = IF(ISBLANK([Weekend Air Change]), "–", FORMAT([Weekend Air Change], "+0%;-0%;0%"))
+		displayFolder: 1 Pulse
+		lineageTag: 56be1209-6ca1-5037-94f8-bf4fa463d3d8
+
+	measure 'Weekend Sea Text' = IF(ISBLANK([Weekend Sea Change]), "–", FORMAT([Weekend Sea Change], "+0%;-0%;0%"))
+		displayFolder: 1 Pulse
+		lineageTag: 19fe94d7-82bb-52a0-a9f2-825b7b6679f0
+
+	measure 'Weekend Air Sub' = SUBSTITUTE(FORMAT(CALCULATE([Aircraft per Day], DimDate[is_weekend] = TRUE()), "#,##0", "en-GB"), ",", UNICHAR(8239)) & " a weekend day vs " & SUBSTITUTE(FORMAT(CALCULATE([Aircraft per Day], DimDate[is_weekend] = FALSE()), "#,##0", "en-GB"), ",", UNICHAR(8239)) & " a weekday"
+		displayFolder: 1 Pulse
+		lineageTag: f840e50b-e284-54bf-a3d2-9337b284089e
+
+	measure 'Weekend Sea Sub' = SUBSTITUTE(FORMAT(CALCULATE([Ships per Day], DimDate[is_weekend] = TRUE()), "#,##0", "en-GB"), ",", UNICHAR(8239)) & " a weekend day vs " & SUBSTITUTE(FORMAT(CALCULATE([Ships per Day], DimDate[is_weekend] = FALSE()), "#,##0", "en-GB"), ",", UNICHAR(8239)) & " a weekday"
+		displayFolder: 1 Pulse
+		lineageTag: 2563284f-04e0-5a89-a166-f8dec6b694e0
+
+	measure 'Busiest Day Text' =
+			VAR d = MAXX(TOPN(1, VALUES(DimDate[date_key]), [Aircraft Seen], DESC), DimDate[date_key])
+			VAR v = CALCULATE([Aircraft Seen], DimDate[date_key] = d)
+			RETURN "Busiest sky: " & CALCULATE(MAX(DimDate[day_label]), DimDate[date_key] = d) & " · " & SUBSTITUTE(FORMAT(v, "#,##0", "en-GB"), ",", UNICHAR(8239)) & " aircraft, " & FORMAT(DIVIDE(v, [Aircraft per Day]) - 1, "+0%;-0%") & " vs the average day"
+		displayFolder: 1 Pulse
+		lineageTag: 064d22ad-1ba5-5635-a159-894bec9f5087
+
+	measure 'Period Text' = "Raspberry Pi collectors · " & FORMAT(MIN(DimDate[date]), "d mmm") & " – " & FORMAT(MAX(DimDate[date]), "d mmm yyyy") & " · " & [Days With Data] & " days · all times UTC"
+		displayFolder: 1 Pulse
+		lineageTag: 0e88d2a1-9b98-51d1-b36c-6da7c4f11d89
+
+	measure 'Type Aircraft' = DISTINCTCOUNT(FactAircraftDaily[icao24])
+		formatString: #,##0
+		displayFolder: 2 Aircraft
+		lineageTag: 08bb6e24-1716-5bac-99c2-2c27249ef7fc
+
+	measure 'Focus Type' =
+			VAR sel = SELECTEDVALUE(DimAircraftType[typecode])
+			VAR best = MAXX(TOPN(1, FILTER(VALUES(DimAircraftType[typecode]), DimAircraftType[typecode] <> "UNKN" && CALCULATE(COUNTROWS(DimAircraftType), DimAircraftType[has_dimensions] = TRUE()) > 0), [Type Aircraft], DESC), DimAircraftType[typecode])
+			VAR any = MAXX(TOPN(1, FILTER(VALUES(DimAircraftType[typecode]), DimAircraftType[typecode] <> "UNKN"), [Type Aircraft], DESC), DimAircraftType[typecode])
+			RETURN IF(NOT ISBLANK(sel) && sel <> "UNKN", sel, IF(ISBLANK(best), any, best))
+		displayFolder: 2 Aircraft
+		lineageTag: 4fe2b700-54bb-58e5-9d55-97eed47f5c9e
+
+	measure 'Focus Model' =
+			VAR ft = [Focus Type]
+			RETURN CALCULATE(MAX(DimAircraftType[model_name]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+		displayFolder: 2 Aircraft
+		lineageTag: afbffc5e-d174-522e-ac0d-cb106909bfd5
+
+	measure 'Focus Class Chip' =
+			VAR ft = [Focus Type]
+			RETURN UPPER(CALCULATE(MAX(DimAircraftType[aircraft_class]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)) & "  ·  " & CALCULATE(MAX(DimAircraftType[manufacturer]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft) & "  ·  " & ft
+		displayFolder: 2 Aircraft
+		lineageTag: ca22717d-42c9-569a-b15b-335aeed966ca
+
+	measure 'Focus Dims Text' =
+			VAR ft = [Focus Type]
+			VAR S = CALCULATE(MAX(DimAircraftType[wingspan_m]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+			VAR L = CALCULATE(MAX(DimAircraftType[length_m]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+			VAR Ht = CALCULATE(MAX(DimAircraftType[tail_height_m]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+			RETURN IF(ISBLANK(S), "Dimensions not in the FAA database", "L " & FORMAT(L, "0.0") & "  ·  W " & FORMAT(S, "0.0") & "  ·  H " & FORMAT(Ht, "0.0") & " m")
+		displayFolder: 2 Aircraft
+		lineageTag: f504b722-1a92-52ec-8068-08da67ca6b7e
+
+	measure 'Focus Sub Text' =
+			VAR ft = [Focus Type]
+			VAR T = CALCULATE(MAX(DimAircraftType[mtow_kg]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+			VAR N = CALCULATE(MAX(DimAircraftType[engines]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+			VAR Eng = CALCULATE(MAX(DimAircraftType[engine_type]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+			VAR Wt = CALCULATE(MAX(DimAircraftType[wtc]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+			RETURN IF(ISBLANK(T), "", FORMAT(T / 1000, "#,##0.0") & " t max take-off  ·  ") & N & " × " & Eng & "  ·  wake category " & Wt
+		displayFolder: 2 Aircraft
+		lineageTag: ae6825bb-d873-5de1-9a48-040ba782647b
+
+	measure 'Focus Seen' =
+			VAR ft = [Focus Type]
+			RETURN CALCULATE([Type Aircraft], REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+		formatString: #,##0
+		displayFolder: 2 Aircraft
+		lineageTag: 41975060-2c01-5fbc-993a-cf0e036e0b18
+
+	measure 'Focus Seen Text' =
+			VAR share = DIVIDE([Focus Seen], CALCULATE([Type Aircraft], REMOVEFILTERS(DimAircraftType)))
+			RETURN SUBSTITUTE(FORMAT([Focus Seen], "#,##0", "en-GB"), ",", UNICHAR(8239)) & " seen  ·  1 in " & FORMAT(DIVIDE(1, share), "#,##0") & " aircraft"
+		displayFolder: 2 Aircraft
+		lineageTag: 2a0c0371-84e0-50e3-a6cc-d615c5478d21
+
+	measure 'Focus Cruise Text' =
+			VAR ft = [Focus Type]
+			VAR spd = CALCULATE(AVERAGE(FactAircraftDaily[avg_airborne_speed_kmh]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+			VAR alt = CALCULATE(MEDIAN(FactAircraftDaily[max_baro_altitude_m]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+			RETURN "Flies " & FORMAT(spd, "#,##0") & " km/h  ·  tops out at " & FORMAT(alt, "#,##0") & " m"
+		displayFolder: 2 Aircraft
+		lineageTag: 02983777-4249-5495-8842-3a98074db948
+
+	measure 'Focus Gate Text' =
+			VAR ft = [Focus Type]
+			VAR S = CALCULATE(MAX(DimAircraftType[wingspan_m]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+			VAR code = SWITCH(TRUE(), S < 15, "A", S < 24, "B", S < 36, "C", S < 52, "D", S < 65, "E", S < 80, "F", "–")
+			RETURN IF(ISBLANK(S), "", "Fits ICAO code " & code & " stands  ·  " & SWITCH(code, "A", "under 15 m", "B", "under 24 m", "C", "under 36 m", "D", "under 52 m", "E", "under 65 m", "F", "under 80 m", "") & " span")
+		displayFolder: 2 Aircraft
+		lineageTag: d786d2f7-8b11-5b3f-9806-b6810ab53a4a
+
+	measure 'Focus Silhouette' =
+			VAR ft = [Focus Type]
+			VAR S = CALCULATE(MAX(DimAircraftType[wingspan_m]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+			VAR L = CALCULATE(MAX(DimAircraftType[length_m]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+			VAR Eng = CALCULATE(MAX(DimAircraftType[engine_type]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+			VAR N = CALCULATE(MAX(DimAircraftType[engines]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+			VAR jet = Eng = "Jet"
+			VAR pf = MAX(1.2, L * 0.075)
+			VAR py0 = -L * 0.08
+			VAR pcr = L * 0.2
+			VAR psw = IF(jet, S / 2 * 0.5, S / 2 * 0.08)
+			VAR pct = pcr * 0.35
+			VAR pyt = L / 2 - L * 0.17
+			VAR phs = MAX(S * 0.17, L * 0.14)
+			VAR ptc = L * 0.1
+			VAR ptsw = IF(jet, phs * 0.6, phs * 0.1)
+			VAR gf = MAX(1.2, 37.6 * 0.075)
+			VAR gy0 = -37.6 * 0.08
+			VAR gcr = 37.6 * 0.2
+			VAR gsw = IF(TRUE(), 35.8 / 2 * 0.5, 35.8 / 2 * 0.08)
+			VAR gct = gcr * 0.35
+			VAR gyt = 37.6 / 2 - 37.6 * 0.17
+			VAR ghs = MAX(35.8 * 0.17, 37.6 * 0.14)
+			VAR gtc = 37.6 * 0.1
+			VAR gtsw = IF(TRUE(), ghs * 0.6, ghs * 0.1)
+			VAR E = MAX(MAX(S, L), 37.6) * 1.18
+			VAR fs = E * 0.058
+			RETURN "data:image/svg+xml;utf8," & IF(ISBLANK(S) || ISBLANK(L), "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 440 220'>" & "<text x='" & FORMAT(220, "0.00", "en-US") & "' y='" & FORMAT(110, "0.00", "en-US") & "' font-family='Segoe UI' font-size='" & FORMAT(14, "0.00", "en-US") & "' font-weight='400' fill='%238A94A1' text-anchor='middle'>" & "No FAA dimensions for this type" & "</text>" & "</svg>",
+			    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='" & FORMAT(-E, "0.00", "en-US") & " " & FORMAT(-E/2, "0.00", "en-US") & " " & FORMAT(2*E, "0.00", "en-US") & " " & FORMAT(E, "0.00", "en-US") & "'>" & "<g fill='%2316191D'>" & "<polygon points='" & FORMAT(pf/2, "0.00", "en-US") & "," & FORMAT(py0, "0.00", "en-US") & " " & FORMAT(S/2, "0.00", "en-US") & "," & FORMAT(py0+psw, "0.00", "en-US") & " " & FORMAT(S/2, "0.00", "en-US") & "," & FORMAT(py0+psw+pct, "0.00", "en-US") & " " & FORMAT(pf/2, "0.00", "en-US") & "," & FORMAT(py0+pcr, "0.00", "en-US") & " " & FORMAT(-(pf/2), "0.00", "en-US") & "," & FORMAT(py0+pcr, "0.00", "en-US") & " " & FORMAT(-(S/2), "0.00", "en-US") & "," & FORMAT(py0+psw+pct, "0.00", "en-US") & " " & FORMAT(-(S/2), "0.00", "en-US") & "," & FORMAT(py0+psw, "0.00", "en-US") & " " & FORMAT(-(pf/2), "0.00", "en-US") & "," & FORMAT(py0, "0.00", "en-US") & "'/>" & "<polygon points='" & FORMAT(pf*0.3, "0.00", "en-US") & "," & FORMAT(pyt, "0.00", "en-US") & " " & FORMAT(phs, "0.00", "en-US") & "," & FORMAT(pyt+ptsw, "0.00", "en-US") & " " & FORMAT(phs, "0.00", "en-US") & "," & FORMAT(pyt+ptsw+ptc*0.45, "0.00", "en-US") & " " & FORMAT(pf*0.3, "0.00", "en-US") & "," & FORMAT(pyt+ptc, "0.00", "en-US") & " " & FORMAT(-(pf*0.3), "0.00", "en-US") & "," & FORMAT(pyt+ptc, "0.00", "en-US") & " " & FORMAT(-(phs), "0.00", "en-US") & "," & FORMAT(pyt+ptsw+ptc*0.45, "0.00", "en-US") & " " & FORMAT(-(phs), "0.00", "en-US") & "," & FORMAT(pyt+ptsw, "0.00", "en-US") & " " & FORMAT(-(pf*0.3), "0.00", "en-US") & "," & FORMAT(pyt, "0.00", "en-US") & "'/>" & "<rect x='" & FORMAT(-pf/2, "0.00", "en-US") & "' y='" & FORMAT(-L/2, "0.00", "en-US") & "' width='" & FORMAT(pf, "0.00", "en-US") & "' height='" & FORMAT(L, "0.00", "en-US") & "' rx='" & FORMAT(pf/2, "0.00", "en-US") & "'/>" & IF(jet || Eng = "Turboprop/Turboshaft", "<ellipse cx='" & FORMAT(S*0.18, "0.00", "en-US") & "' cy='" & FORMAT(py0+psw*0.36-L*0.02, "0.00", "en-US") & "' rx='" & FORMAT(pf*0.32, "0.00", "en-US") & "' ry='" & FORMAT(L*0.045, "0.00", "en-US") & "' fill='%2316191D'/>" & "<ellipse cx='" & FORMAT(-S*0.18, "0.00", "en-US") & "' cy='" & FORMAT(py0+psw*0.36-L*0.02, "0.00", "en-US") & "' rx='" & FORMAT(pf*0.32, "0.00", "en-US") & "' ry='" & FORMAT(L*0.045, "0.00", "en-US") & "' fill='%2316191D'/>" & IF(N >= 4, "<ellipse cx='" & FORMAT(S*0.33, "0.00", "en-US") & "' cy='" & FORMAT(py0+psw*0.66-L*0.02, "0.00", "en-US") & "' rx='" & FORMAT(pf*0.28, "0.00", "en-US") & "' ry='" & FORMAT(L*0.04, "0.00", "en-US") & "' fill='%2316191D'/>" & "<ellipse cx='" & FORMAT(-S*0.33, "0.00", "en-US") & "' cy='" & FORMAT(py0+psw*0.66-L*0.02, "0.00", "en-US") & "' rx='" & FORMAT(pf*0.28, "0.00", "en-US") & "' ry='" & FORMAT(L*0.04, "0.00", "en-US") & "' fill='%2316191D'/>", ""), "") & "</g>" & "<g fill='none' stroke='%23B8C0CA' stroke-width='" & FORMAT(E*0.004, "0.00", "en-US") & "' stroke-dasharray='" & FORMAT(E*0.012, "0.00", "en-US") & "'>" & "<polygon points='" & FORMAT(gf/2, "0.00", "en-US") & "," & FORMAT(gy0, "0.00", "en-US") & " " & FORMAT(35.8/2, "0.00", "en-US") & "," & FORMAT(gy0+gsw, "0.00", "en-US") & " " & FORMAT(35.8/2, "0.00", "en-US") & "," & FORMAT(gy0+gsw+gct, "0.00", "en-US") & " " & FORMAT(gf/2, "0.00", "en-US") & "," & FORMAT(gy0+gcr, "0.00", "en-US") & " " & FORMAT(-(gf/2), "0.00", "en-US") & "," & FORMAT(gy0+gcr, "0.00", "en-US") & " " & FORMAT(-(35.8/2), "0.00", "en-US") & "," & FORMAT(gy0+gsw+gct, "0.00", "en-US") & " " & FORMAT(-(35.8/2), "0.00", "en-US") & "," & FORMAT(gy0+gsw, "0.00", "en-US") & " " & FORMAT(-(gf/2), "0.00", "en-US") & "," & FORMAT(gy0, "0.00", "en-US") & "'/>" & "<polygon points='" & FORMAT(gf*0.3, "0.00", "en-US") & "," & FORMAT(gyt, "0.00", "en-US") & " " & FORMAT(ghs, "0.00", "en-US") & "," & FORMAT(gyt+gtsw, "0.00", "en-US") & " " & FORMAT(ghs, "0.00", "en-US") & "," & FORMAT(gyt+gtsw+gtc*0.45, "0.00", "en-US") & " " & FORMAT(gf*0.3, "0.00", "en-US") & "," & FORMAT(gyt+gtc, "0.00", "en-US") & " " & FORMAT(-(gf*0.3), "0.00", "en-US") & "," & FORMAT(gyt+gtc, "0.00", "en-US") & " " & FORMAT(-(ghs), "0.00", "en-US") & "," & FORMAT(gyt+gtsw+gtc*0.45, "0.00", "en-US") & " " & FORMAT(-(ghs), "0.00", "en-US") & "," & FORMAT(gyt+gtsw, "0.00", "en-US") & " " & FORMAT(-(gf*0.3), "0.00", "en-US") & "," & FORMAT(gyt, "0.00", "en-US") & "'/>" & "<rect x='" & FORMAT(-gf/2, "0.00", "en-US") & "' y='" & FORMAT(-37.6/2, "0.00", "en-US") & "' width='" & FORMAT(gf, "0.00", "en-US") & "' height='37.6' rx='" & FORMAT(gf/2, "0.00", "en-US") & "'/></g>" & "<g stroke='%238A94A1' stroke-width='" & FORMAT(E*0.003, "0.00", "en-US") & "'>" & "<line x1='" & FORMAT(-S/2, "0.00", "en-US") & "' y1='" & FORMAT(E*0.44, "0.00", "en-US") & "' x2='" & FORMAT(S/2, "0.00", "en-US") & "' y2='" & FORMAT(E*0.44, "0.00", "en-US") & "'/>" & "<line x1='" & FORMAT(-E*0.62, "0.00", "en-US") & "' y1='" & FORMAT(-L/2, "0.00", "en-US") & "' x2='" & FORMAT(-E*0.62, "0.00", "en-US") & "' y2='" & FORMAT(L/2, "0.00", "en-US") & "'/></g>" & "<text x='" & FORMAT(S/2+E*0.03, "0.00", "en-US") & "' y='" & FORMAT(E*0.44+fs*0.35, "0.00", "en-US") & "' font-family='Segoe UI' font-size='" & FORMAT(fs, "0.00", "en-US") & "' font-weight='400' fill='%234F5865' text-anchor='start'>" & FORMAT(S, "0.0", "en-US") & " m span" & "</text>" & "<text x='" & FORMAT(-E*0.65, "0.00", "en-US") & "' y='" & FORMAT(0, "0.00", "en-US") & "' font-family='Segoe UI' font-size='" & FORMAT(fs, "0.00", "en-US") & "' font-weight='400' fill='%234F5865' text-anchor='end'>" & FORMAT(L, "0.0", "en-US") & " m long" & "</text>" & "<text x='" & FORMAT(E*0.98, "0.00", "en-US") & "' y='" & FORMAT(-E*0.40, "0.00", "en-US") & "' font-family='Segoe UI' font-size='" & FORMAT(fs*0.9, "0.00", "en-US") & "' font-weight='400' fill='%238A94A1' text-anchor='end'>" & "- - -  A320 for scale" & "</text>" & "</svg>")
+		displayFolder: 2 Aircraft
+		lineageTag: b52cb7e3-ec64-504f-81c6-8ce9fa4a0b62
+		dataCategory: ImageUrl
+
+	measure 'Focus Spec Bars' =
+			VAR ft = [Focus Type]
+			VAR S = CALCULATE(MAX(DimAircraftType[wingspan_m]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+			VAR L = CALCULATE(MAX(DimAircraftType[length_m]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+			VAR T = CALCULATE(MAX(DimAircraftType[mtow_kg]), REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft) / 1000
+			RETURN "data:image/svg+xml;utf8," & "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 250 150'>" & "<text x='" & FORMAT(0, "0.00", "en-US") & "' y='" & FORMAT(16, "0.00", "en-US") & "' font-family='Segoe UI' font-size='" & FORMAT(12, "0.00", "en-US") & "' font-weight='400' fill='%238A94A1' text-anchor='start'>" & "Wingspan" & "</text>" & "<text x='" & FORMAT(250, "0.00", "en-US") & "' y='" & FORMAT(16, "0.00", "en-US") & "' font-family='Segoe UI' font-size='" & FORMAT(12, "0.00", "en-US") & "' font-weight='600' fill='%23111418' text-anchor='end'>" & IF(ISBLANK(S), "n/a", FORMAT(S, "#,##0.0", "en-US") & " / 79.8" & " m") & "</text>" & "<rect x='0' y='25' width='250' height='5' rx='2.5' fill='%23E3E7EC'/>" & "<rect x='0' y='25' width='" & FORMAT(250 * MIN(1, DIVIDE(S, 79.8, 0)), "0.00", "en-US") & "' height='5' rx='2.5' fill='%2316191D'/>" & "<text x='" & FORMAT(0, "0.00", "en-US") & "' y='" & FORMAT(64, "0.00", "en-US") & "' font-family='Segoe UI' font-size='" & FORMAT(12, "0.00", "en-US") & "' font-weight='400' fill='%238A94A1' text-anchor='start'>" & "Length" & "</text>" & "<text x='" & FORMAT(250, "0.00", "en-US") & "' y='" & FORMAT(64, "0.00", "en-US") & "' font-family='Segoe UI' font-size='" & FORMAT(12, "0.00", "en-US") & "' font-weight='600' fill='%23111418' text-anchor='end'>" & IF(ISBLANK(L), "n/a", FORMAT(L, "#,##0.0", "en-US") & " / 72.7" & " m") & "</text>" & "<rect x='0' y='73' width='250' height='5' rx='2.5' fill='%23E3E7EC'/>" & "<rect x='0' y='73' width='" & FORMAT(250 * MIN(1, DIVIDE(L, 72.7, 0)), "0.00", "en-US") & "' height='5' rx='2.5' fill='%2316191D'/>" & "<text x='" & FORMAT(0, "0.00", "en-US") & "' y='" & FORMAT(112, "0.00", "en-US") & "' font-family='Segoe UI' font-size='" & FORMAT(12, "0.00", "en-US") & "' font-weight='400' fill='%238A94A1' text-anchor='start'>" & "Max take-off weight" & "</text>" & "<text x='" & FORMAT(250, "0.00", "en-US") & "' y='" & FORMAT(112, "0.00", "en-US") & "' font-family='Segoe UI' font-size='" & FORMAT(12, "0.00", "en-US") & "' font-weight='600' fill='%23111418' text-anchor='end'>" & IF(ISBLANK(T), "n/a", FORMAT(T, "#,##0.0", "en-US") & " / 575" & " t") & "</text>" & "<rect x='0' y='121' width='250' height='5' rx='2.5' fill='%23E3E7EC'/>" & "<rect x='0' y='121' width='" & FORMAT(250 * MIN(1, DIVIDE(T, 575, 0)), "0.00", "en-US") & "' height='5' rx='2.5' fill='%2316191D'/>" & "</svg>"
+		displayFolder: 2 Aircraft
+		lineageTag: 3e0f0a13-b625-5c72-8dbc-8ca686b47110
+		dataCategory: ImageUrl
+
+	measure 'Top Types' =
+			VAR N = SELECTEDVALUE(DimAircraftType[model_name])
+			VAR V = [Type Aircraft]
+			RETURN IF(ISBLANK(N) || ISBLANK(V) || N = "Unknown type", BLANK(),
+			    VAR R = RANKX(FILTER(ALLSELECTED(DimAircraftType[model_name]), DimAircraftType[model_name] <> "Unknown type" && NOT ISBLANK([Type Aircraft])), [Type Aircraft], V, DESC)
+			    RETURN IF(R <= 20, V))
+		formatString: #,##0
+		displayFolder: 2 Aircraft
+		lineageTag: 1fa99f7d-7358-5783-a2d6-fffede32de7b
+
+	measure 'Type Bar Color' = IF(SELECTEDVALUE(DimAircraftType[model_name]) = CALCULATE([Focus Model], ALLSELECTED(DimAircraftType[model_name])), "#16191D", "#2A78D6")
+		displayFolder: 2 Aircraft
+		lineageTag: a32fc0f5-c7bc-510d-87ec-970808618d42
+
+	measure 'Focus Operators' =
+			// the focus type must not depend on the operator row (each operator would find its own top type)
+			VAR ft = CALCULATE([Focus Type], REMOVEFILTERS(DimAircraft[operator]))
+			VAR op = SELECTEDVALUE(DimAircraft[operator])
+			VAR V = CALCULATE([Type Aircraft], REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft)
+			RETURN IF(ISBLANK(op) || ISBLANK(V), BLANK(),
+			    VAR R = RANKX(FILTER(ALLSELECTED(DimAircraft[operator]), NOT ISBLANK(DimAircraft[operator]) && NOT ISBLANK(CALCULATE([Type Aircraft], REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft))),
+			        CALCULATE([Type Aircraft], REMOVEFILTERS(DimAircraftType), DimAircraftType[typecode] = ft), V, DESC)
+			    RETURN IF(R <= 6, V))
+		formatString: #,##0
+		displayFolder: 2 Aircraft
+		lineageTag: a65d0fc9-198c-5da5-89f1-cdbeb9fa1e2b
+
+	measure 'Operators Title' = "Who flies the " & [Focus Model]
+		displayFolder: 2 Aircraft
+		lineageTag: 13b8772c-a065-58ec-b69e-11ffa622e823
+
+	measure 'Focus Port' =
+			VAR p = SELECTEDVALUE(PortPick[locode])
+			RETURN IF(ISBLANK(p), "DEHAM", p)
+		displayFolder: 3 Sea
+		lineageTag: 70442571-1e86-5c1d-94a8-3a76f154c4bb
+
+	measure Calls = CALCULATE(COUNTROWS(FactPortCalls), FactPortCalls[is_seagoing] = TRUE(), NOT ISBLANK(FactPortCalls[locode]))
+		formatString: #,##0
+		displayFolder: 3 Sea
+		lineageTag: aaa6e258-fbea-5346-bb3b-7d42c79de595
+
+	measure 'Dwell Median' = CALCULATE(MEDIAN(FactPortCalls[duration_h]), FactPortCalls[is_seagoing] = TRUE(), NOT ISBLANK(FactPortCalls[locode]), FactPortCalls[is_truncated] = FALSE())
+		formatString: 0.0
+		displayFolder: 3 Sea
+		lineageTag: 25367e1f-5754-57bf-856d-8a0cdadad041
+
+	measure 'Long Stays' = CALCULATE([Calls], FactPortCalls[duration_h] >= 48)
+		formatString: #,##0
+		displayFolder: 3 Sea
+		lineageTag: 9a43d80d-2d30-5d3b-8fb4-daf91072f18b
+
+	measure 'Port Ships' = CALCULATE(DISTINCTCOUNT(FactPortCalls[mmsi]), FactPortCalls[is_seagoing] = TRUE(), NOT ISBLANK(FactPortCalls[locode]))
+		formatString: #,##0
+		displayFolder: 3 Sea
+		lineageTag: 8af72e91-6cf4-5460-84e9-da3ec4b32b49
+
+	measure 'Focus Calls' = CALCULATE([Calls], TREATAS({[Focus Port]}, DimPort[locode]))
+		formatString: #,##0
+		displayFolder: 3 Sea
+		lineageTag: d723f26a-9a6b-59e7-a2a9-adf156369480
+
+	measure 'Focus Dwell Median' = CALCULATE([Dwell Median], TREATAS({[Focus Port]}, DimPort[locode]))
+		formatString: 0.0
+		displayFolder: 3 Sea
+		lineageTag: 8db1ba0a-8001-52ee-bce6-023c8b754938
+
+	measure 'Focus Long Stays' = CALCULATE([Long Stays], TREATAS({[Focus Port]}, DimPort[locode]))
+		formatString: #,##0
+		displayFolder: 3 Sea
+		lineageTag: b6bbb95c-ede1-50fc-8c9b-040014933949
+
+	measure 'Focus Port Ships' = CALCULATE([Port Ships], TREATAS({[Focus Port]}, DimPort[locode]))
+		formatString: #,##0
+		displayFolder: 3 Sea
+		lineageTag: f596a880-da1e-5e28-9c4c-e3cdba33cacc
+
+	measure 'All Ports Dwell Median' = CALCULATE([Dwell Median], REMOVEFILTERS(DimPort))
+		formatString: 0.0
+		displayFolder: 3 Sea
+		lineageTag: 1ebdc526-d245-5c81-bd5e-a3569ecff45f
+
+	measure 'Focus Port Name' =
+			VAR p = [Focus Port]
+			RETURN CALCULATE(MAX(DimPort[port_name]), REMOVEFILTERS(DimPort), DimPort[locode] = p)
+		displayFolder: 3 Sea
+		lineageTag: c7a1d9f7-d328-57f8-bab9-f9c19fea2e60
+
+	measure 'Focus Port Sub' =
+			VAR p = [Focus Port]
+			RETURN p & "  ·  " & CALCULATE(MAX(DimPort[country]), REMOVEFILTERS(DimPort), DimPort[locode] = p) & "  ·  " & SUBSTITUTE(FORMAT([Focus Calls], "#,##0", "en-GB"), ",", UNICHAR(8239)) & " seagoing calls by " & SUBSTITUTE(FORMAT([Focus Port Ships], "#,##0", "en-GB"), ",", UNICHAR(8239)) & " ships"
+		displayFolder: 3 Sea
+		lineageTag: 3b928c3b-2e51-5421-95ea-cd094ef782f8
+
+	measure 'Focus Dwell Text' = IF(ISBLANK([Focus Dwell Median]), "–", FORMAT([Focus Dwell Median], "0.0") & " h")
+		displayFolder: 3 Sea
+		lineageTag: 5dbc9d5b-9338-5932-ab0b-0ec7b141171f
+
+	measure 'Focus Dwell Compare' =
+			VAR d = [Focus Dwell Median]
+			VAR a = [All Ports Dwell Median]
+			RETURN IF(ISBLANK(d), "", "median stay  ·  " & FORMAT(DIVIDE(d, a) - 1, "+0%;-0%") & " vs " & FORMAT(a, "0.0") & " h all ports")
+		displayFolder: 3 Sea
+		lineageTag: e5a9ec24-b46f-5dfd-87bc-0148ddaad253
+
+	measure 'Focus Long Text' = SUBSTITUTE(FORMAT([Focus Long Stays] + 0, "#,##0", "en-GB"), ",", UNICHAR(8239))
+		displayFolder: 3 Sea
+		lineageTag: c11f1033-273a-52f6-8745-f59988d62969
+
+	measure 'Focus Long Sub' = "stays of 48 h or more  ·  " & FORMAT(DIVIDE([Focus Long Stays] + 0, [Focus Calls]), "0%")
+		displayFolder: 3 Sea
+		lineageTag: 20e94b58-9303-5192-8287-166367f05854
+
+	measure 'Focus Ships Text' = SUBSTITUTE(FORMAT([Focus Port Ships], "#,##0", "en-GB"), ",", UNICHAR(8239))
+		displayFolder: 3 Sea
+		lineageTag: c12f3313-1bf6-532e-b5f0-4946c3c75233
+
+	measure 'Focus Calls per Ship Sub' = "ships  ·  " & FORMAT(DIVIDE([Focus Calls], [Focus Port Ships]), "0.00") & " calls each"
+		displayFolder: 3 Sea
+		lineageTag: fe0cacee-217c-5819-8697-1f6c348da485
+
+	measure 'Focus Calls Day Text' = SUBSTITUTE(FORMAT(DIVIDE([Focus Calls], [Days With Data]), "#,##0.0", "en-GB"), ",", UNICHAR(8239))
+		displayFolder: 3 Sea
+		lineageTag: 52d59e38-2696-5ef5-9f30-417e77cbb989
+
+	measure 'Focus Calls Day Sub' = "calls a day  ·  #" & [Focus Port Rank] & " of " & SUBSTITUTE(FORMAT([Ports With Calls], "#,##0", "en-GB"), ",", UNICHAR(8239)) & " ports"
+		displayFolder: 3 Sea
+		lineageTag: a1bb8071-ca33-57f9-b454-51fbb6b76907
+
+	measure 'Focus Port Rank' =
+			VAR p = [Focus Port]
+			VAR c = CALCULATE([Calls], REMOVEFILTERS(DimPort), DimPort[locode] = p)
+			RETURN IF(ISBLANK(c), BLANK(), COUNTROWS(FILTER(ALL(DimPort[locode]), [Calls] > c)) + 1)
+		formatString: 0
+		displayFolder: 3 Sea
+		lineageTag: d6d6a7e9-1bcd-5659-b783-96b7f56d47ce
+
+	measure 'Ports With Calls' = COUNTROWS(FILTER(ALL(DimPort[locode]), NOT ISBLANK([Calls])))
+		formatString: #,##0
+		displayFolder: 3 Sea
+		lineageTag: f5f38731-c0e0-5846-bb26-a53caf487d2e
+
+	measure 'Band Color' = IF(SELECTEDVALUE(FactPortCalls[dwell_band]) = "48 h +", "#EB6834", "#1BAF7A")
+		displayFolder: 3 Sea
+		lineageTag: 7ad08edf-47dc-5844-bc47-a87c2cb2baa4
+
+	measure 'Top Ports' =
+			VAR N = SELECTEDVALUE(DimPort[port_label])
+			VAR V = [Calls]
+			RETURN IF(ISBLANK(N) || ISBLANK(V), BLANK(),
+			    VAR R = RANKX(FILTER(ALLSELECTED(DimPort[port_label]), NOT ISBLANK([Calls])), [Calls], V, DESC)
+			    RETURN IF(R <= 5, V))
+		formatString: #,##0
+		displayFolder: 3 Sea
+		lineageTag: eab82827-c139-5017-b99e-bede9e9e7943
+
+	measure 'Port Bar Color' = IF(SELECTEDVALUE(DimPort[locode]) = [Focus Port], "#16191D", "#1BAF7A")
+		displayFolder: 3 Sea
+		lineageTag: 54599673-d600-576a-8ab6-db89a7803724
+
+	measure 'Top Stays h' =
+			// 12 longest seagoing stays at the focus port (a stay that touches the data edges is a lower bound)
+			VAR V = CALCULATE(SUM(FactPortCalls[duration_h]), FactPortCalls[is_seagoing] = TRUE(), NOT ISBLANK(FactPortCalls[locode]), TREATAS({[Focus Port]}, DimPort[locode]))
+			VAR Longer = CALCULATE(COUNTROWS(FILTER(FactPortCalls, FactPortCalls[duration_h] > V)), ALLSELECTED(), FactPortCalls[is_seagoing] = TRUE(), NOT ISBLANK(FactPortCalls[locode]), TREATAS({[Focus Port]}, DimPort[locode]))
+			RETURN IF(ISBLANK(V), BLANK(), IF(Longer + 0 < 12, V))
+		formatString: #,##0.0
+		displayFolder: 3 Sea
+		lineageTag: dfc1673e-1db0-588e-a3c4-255ebd767ce3
+
+	measure 'Bronze Rows' = SUM(FactQuality[bronze_rows])
+		formatString: #,##0
+		displayFolder: 4 Quality
+		lineageTag: f4d3009f-333c-5607-b7fc-f8d7e0204fbb
+
+	measure 'Silver Rows' = SUM(FactQuality[silver_rows])
+		formatString: #,##0
+		displayFolder: 4 Quality
+		lineageTag: 7e599325-e51e-5570-bfe6-0c98cc5358fb
+
+	measure 'Dropped Rows' = SUM(FactQuality[dropped_rows])
+		formatString: #,##0
+		displayFolder: 4 Quality
+		lineageTag: 62a6fea8-44d0-5326-9e27-4da524edaa1e
+
+	measure 'Dropped Share' = DIVIDE([Dropped Rows], [Bronze Rows])
+		formatString: 0.00%
+		displayFolder: 4 Quality
+		lineageTag: 1c36c021-703c-59ce-9852-36777ee6596e
+
+	measure 'Stale Share' = DIVIDE(CALCULATE(SUM(FactQuality[flag_stale]), FactQuality[dataset] = "Aircraft states"), CALCULATE([Silver Rows], FactQuality[dataset] = "Aircraft states"))
+		formatString: 0.0%
+		displayFolder: 4 Quality
+		lineageTag: d9aabdef-d011-5343-9743-0a147ecfa528
+
+	measure 'Aircraft Rows' = CALCULATE([Bronze Rows], FactQuality[dataset] = "Aircraft states")
+		formatString: #,##0
+		displayFolder: 4 Quality
+		lineageTag: ee13b499-0916-504e-8649-a7907dec42ec
+
+	measure 'Ship Rows' = CALCULATE([Bronze Rows], FactQuality[dataset] = "Ship positions")
+		formatString: #,##0
+		displayFolder: 4 Quality
+		lineageTag: 15b7d2b4-b87c-5dce-ac24-5b968abbfe63
+
+	measure 'Bronze Text' = SUBSTITUTE(FORMAT([Bronze Rows], "#,##0", "en-GB"), ",", UNICHAR(8239))
+		displayFolder: 4 Quality
+		lineageTag: 739cf0d5-016e-543c-aff6-03a8f84d0274
+
+	measure 'Silver Text' = SUBSTITUTE(FORMAT([Silver Rows], "#,##0", "en-GB"), ",", UNICHAR(8239))
+		displayFolder: 4 Quality
+		lineageTag: 39b87527-8909-5d52-9256-78813afc5a1a
+
+	measure 'Dropped Text' = FORMAT([Dropped Share], "0.00%")
+		displayFolder: 4 Quality
+		lineageTag: 9e06587c-6a4d-54d0-88e3-58b433b943a8
+
+	measure 'Stale Text' = FORMAT([Stale Share], "0.0%")
+		displayFolder: 4 Quality
+		lineageTag: 5af2e3fd-d7b6-5bd0-b10c-9ba331952279
+
+	measure 'Bronze Sub' = "raw rows landed  ·  " & [Days With Data] & " days, 3 sources"
+		displayFolder: 4 Quality
+		lineageTag: c159bd78-333b-57db-8fb1-c3668f4835ef
+
+	measure 'Silver Sub' = "typed rows kept for gold"
+		displayFolder: 4 Quality
+		lineageTag: 75be6c63-da21-59ee-b192-5ea354423465
+
+	measure 'Dropped Sub' = SUBSTITUTE(FORMAT([Dropped Rows], "#,##0", "en-GB"), ",", UNICHAR(8239)) & " rows failed a drop rule"
+		displayFolder: 4 Quality
+		lineageTag: 85d70425-6e81-5fcc-b272-b0718fc6dbbd
+
+	measure 'Stale Sub' = "aircraft fixes > 120 s old: kept, flagged"
+		displayFolder: 4 Quality
+		lineageTag: e94ebdfc-97b0-5323-824e-09f79b7f71c3
+
+	measure 'Top Ship Stay h' =
+			// each ship's longest single seagoing stay at the focus port; the 10 longest ships are kept
+			VAR N = SELECTEDVALUE(DimShip[ship_label])
+			VAR V = CALCULATE(MAX(FactPortCalls[duration_h]), FactPortCalls[is_seagoing] = TRUE(), NOT ISBLANK(FactPortCalls[locode]), TREATAS({[Focus Port]}, DimPort[locode]))
+			RETURN IF(ISBLANK(N) || ISBLANK(V), BLANK(),
+			    VAR R = RANKX(FILTER(ALLSELECTED(DimShip[ship_label]), NOT ISBLANK(CALCULATE(MAX(FactPortCalls[duration_h]), FactPortCalls[is_seagoing] = TRUE(), NOT ISBLANK(FactPortCalls[locode]), TREATAS({[Focus Port]}, DimPort[locode])))),
+			        CALCULATE(MAX(FactPortCalls[duration_h]), FactPortCalls[is_seagoing] = TRUE(), NOT ISBLANK(FactPortCalls[locode]), TREATAS({[Focus Port]}, DimPort[locode])), V, DESC)
+			    RETURN IF(R <= 10, V))
+		formatString: #,##0
+		displayFolder: 3 Sea
+		lineageTag: 4a4ab498-4c52-55b5-8a90-f7cad1be30cb
+
+	measure 'Focus Photo' =
+			VAR ft = [Focus Type]
+			VAR u = CALCULATE(MAX(AircraftPhoto[image]), AircraftPhoto[typecode] = ft)
+			RETURN IF(ISBLANK(u), "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 144'><rect width='256' height='144' rx='10' fill='%23EEF1F4'/><text x='128' y='76' font-family='Segoe UI' font-size='11' fill='%238A94A1' text-anchor='middle'>No free photo for this type</text></svg>", u)
+		displayFolder: 2 Aircraft
+		lineageTag: 7512742a-53a9-51f8-b51c-fae033fa6e43
+		dataCategory: ImageUrl
+
+	measure 'Focus Photo Credit' =
+			VAR ft = [Focus Type]
+			RETURN CALCULATE(MAX(AircraftPhoto[credit]), AircraftPhoto[typecode] = ft) & ""
+		displayFolder: 2 Aircraft
+		lineageTag: 7a35c86f-a397-56d0-b91b-b1e55973b06d
+
+	column Value
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c5374f4a-bec3-5081-a38e-d9646198346c
+		summarizeBy: none
+		sourceColumn: Value
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Measures = m
+		mode: import
+		source =
+				let
+				  Source = #table({"Value"}, {{0}}),
+				  #"Changed Type" = Table.TransformColumnTypes(Source, {{"Value", Int64.Type}})
+				in
+				  #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

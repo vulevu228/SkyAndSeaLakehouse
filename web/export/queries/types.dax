@@ -1,0 +1,10 @@
+EVALUATE
+FILTER(
+    ADDCOLUMNS(
+        SELECTCOLUMNS(DimAircraftType, "typecode", DimAircraftType[typecode], "model", DimAircraftType[model_name], "maker", DimAircraftType[manufacturer],
+            "cls", DimAircraftType[aircraft_class], "eng", DimAircraftType[engine_type], "engines", DimAircraftType[engines], "wtc", DimAircraftType[wtc],
+            "span", DimAircraftType[wingspan_m], "len", DimAircraftType[length_m], "height", DimAircraftType[tail_height_m], "mtow", DimAircraftType[mtow_kg]),
+        "seen", CALCULATE([Type Aircraft], DimAircraftType[typecode] = EARLIER([typecode])),
+        "kmh", CALCULATE(AVERAGE(FactAircraftDaily[avg_airborne_speed_kmh]), DimAircraftType[typecode] = EARLIER([typecode])),
+        "alt", CALCULATE(MEDIAN(FactAircraftDaily[max_baro_altitude_m]), DimAircraftType[typecode] = EARLIER([typecode]))),
+    NOT ISBLANK([seen]))

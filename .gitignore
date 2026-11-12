@@ -1,0 +1,16 @@
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.venv/
+*.parquet
+
+# Power BI Desktop local files
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+# local only
+powerbi_build/snap_*/
+web/export/lib/
+databricks/**/*.bak
+docs/
+sql/practice/
+sql/lesson04_solutions.sql

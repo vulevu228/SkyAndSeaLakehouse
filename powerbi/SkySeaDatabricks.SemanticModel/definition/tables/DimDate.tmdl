@@ -1,0 +1,65 @@
+table DimDate
+	lineageTag: 289e66a6-7897-5499-8a9e-c08eaa89d692
+
+	column date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: bdcbf0d6-9585-5276-8e4e-40b9b86268b5
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column date
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		lineageTag: f169e301-7883-5da4-99e1-e539f1ca71a2
+		summarizeBy: none
+		sourceColumn: date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column weekday
+		dataType: string
+		lineageTag: 1809420e-796a-5130-bca4-340013c6295f
+		summarizeBy: none
+		sourceColumn: weekday
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_weekend
+		dataType: boolean
+		lineageTag: e34c1e73-0d32-5267-87c4-87dc38336946
+		summarizeBy: none
+		sourceColumn: is_weekend
+
+		annotation SummarizationSetBy = Automatic
+
+	column day_label
+		dataType: string
+		lineageTag: 3db189e6-dfe7-504a-9240-5528ced20aaf
+		summarizeBy: none
+		sourceColumn: day_label
+		sortByColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimDate = m
+		mode: import
+		source =
+				let
+				    Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+				    Catalog = Source{[Name = "workspace"]}[Data],
+				    Schema = Catalog{[Name = "skysea"]}[Data],
+				    Data = Schema{[Name = "dim_date"]}[Data],
+				    Kept = Table.SelectColumns(Data, {"date_key", "date", "weekday", "is_weekend"}),
+				    Typed = Table.TransformColumnTypes(Kept, {{"date_key", Int64.Type}, {"date", type date}, {"weekday", type text}, {"is_weekend", type logical}}),
+				    #"Added day_label" = Table.AddColumn(Typed, "day_label", each Date.ToText([date], "ddd d MMM", "en-GB"), type text)
+				in
+				    #"Added day_label"
+
+	annotation PBI_ResultType = Table
+

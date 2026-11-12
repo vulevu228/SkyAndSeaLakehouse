@@ -1,0 +1,4 @@
+EVALUATE
+SUMMARIZECOLUMNS(DimDate[date], FactQuality[dataset],
+    "bronze", SUM(FactQuality[bronze_rows]), "silver", SUM(FactQuality[silver_rows]), "dropped", SUM(FactQuality[dropped_rows]),
+    "stale", SUM(FactQuality[flag_stale]), "speed", SUM(FactQuality[flag_speed]))

@@ -1,0 +1,150 @@
+table DimAircraftType
+	lineageTag: fb57b541-ff7d-5519-9639-75444fcb68b7
+
+	column typecode
+		dataType: string
+		lineageTag: e30ea084-7dd8-5e88-846e-3cc4e7b5f4b7
+		summarizeBy: none
+		sourceColumn: typecode
+
+		annotation SummarizationSetBy = Automatic
+
+	column model_name
+		dataType: string
+		lineageTag: 0aa42950-22d3-5698-b4a6-542b872307b7
+		summarizeBy: none
+		sourceColumn: model_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column manufacturer
+		dataType: string
+		lineageTag: ae0620b5-9656-5eeb-9302-2f90aa386796
+		summarizeBy: none
+		sourceColumn: manufacturer
+
+		annotation SummarizationSetBy = Automatic
+
+	column aircraft_class
+		dataType: string
+		lineageTag: ea6e8eed-9630-577f-b08a-9d8f7082bdfe
+		summarizeBy: none
+		sourceColumn: aircraft_class
+		sortByColumn: class_order
+
+		annotation SummarizationSetBy = Automatic
+
+	column engine_type
+		dataType: string
+		lineageTag: b315a1d8-b257-51da-8a6e-f2948ec1fc3f
+		summarizeBy: none
+		sourceColumn: engine_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column engines
+		dataType: int64
+		formatString: 0
+		lineageTag: f6969649-3202-5115-83cc-131cd1893b9e
+		summarizeBy: none
+		sourceColumn: engines
+
+		annotation SummarizationSetBy = Automatic
+
+	column wtc
+		dataType: string
+		lineageTag: bcc2036c-8d27-5511-9168-755edc8fe53b
+		summarizeBy: none
+		sourceColumn: wtc
+
+		annotation SummarizationSetBy = Automatic
+
+	column wingspan_m
+		dataType: double
+		formatString: 0.0
+		lineageTag: 5f587203-e762-57ac-928d-0911df1751b4
+		summarizeBy: none
+		sourceColumn: wingspan_m
+
+		annotation SummarizationSetBy = Automatic
+
+	column length_m
+		dataType: double
+		formatString: 0.0
+		lineageTag: e0fe22b8-3d4f-5932-a693-5d81b54a7a32
+		summarizeBy: none
+		sourceColumn: length_m
+
+		annotation SummarizationSetBy = Automatic
+
+	column tail_height_m
+		dataType: double
+		formatString: 0.0
+		lineageTag: d4148f6d-ca2c-5246-b085-525a0343a3b2
+		summarizeBy: none
+		sourceColumn: tail_height_m
+
+		annotation SummarizationSetBy = Automatic
+
+	column mtow_kg
+		dataType: double
+		formatString: #,##0
+		lineageTag: 562e9644-7e8a-5392-8b28-260e34c735cd
+		summarizeBy: none
+		sourceColumn: mtow_kg
+
+		annotation SummarizationSetBy = Automatic
+
+	column approach_speed_kt
+		dataType: double
+		formatString: 0
+		lineageTag: 7a6a7fbc-1d4c-546b-a292-c4a9cc7c5cf3
+		summarizeBy: none
+		sourceColumn: approach_speed_kt
+
+		annotation SummarizationSetBy = Automatic
+
+	column has_dimensions
+		dataType: boolean
+		lineageTag: ccfcead2-14db-503e-8dd2-e5e8f9434a80
+		summarizeBy: none
+		sourceColumn: has_dimensions
+
+		annotation SummarizationSetBy = Automatic
+
+	column aircraft_seen
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 964bcb47-7391-51ae-bb49-892ef6e4936c
+		summarizeBy: none
+		sourceColumn: aircraft_seen
+
+		annotation SummarizationSetBy = Automatic
+
+	column class_order
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 4998e42b-014e-53dd-a7e4-1ea5b8d8d77a
+		summarizeBy: none
+		sourceColumn: class_order
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimAircraftType = m
+		mode: import
+		source =
+				let
+				    Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+				    Catalog = Source{[Name = "workspace"]}[Data],
+				    Schema = Catalog{[Name = "skysea"]}[Data],
+				    Data = Schema{[Name = "dim_aircraft_type"]}[Data],
+				    Kept = Table.SelectColumns(Data, {"typecode", "model_name", "manufacturer", "aircraft_class", "engine_type", "engines", "wtc", "wingspan_m", "length_m", "tail_height_m", "mtow_kg", "approach_speed_kt", "has_dimensions", "aircraft_seen"}),
+				    Typed = Table.TransformColumnTypes(Kept, {{"typecode", type text}, {"model_name", type text}, {"manufacturer", type text}, {"aircraft_class", type text}, {"engine_type", type text}, {"engines", Int64.Type}, {"wtc", type text}, {"wingspan_m", type number}, {"length_m", type number}, {"tail_height_m", type number}, {"mtow_kg", type number}, {"approach_speed_kt", type number}, {"has_dimensions", type logical}, {"aircraft_seen", Int64.Type}}),
+				    #"Short class" = Table.ReplaceValue(Typed, "Unknown type", "Unknown", Replacer.ReplaceValue, {"aircraft_class"}),
+				    #"Added class_order" = Table.AddColumn(#"Short class", "class_order", each List.PositionOf({"Heavy jet", "Medium jet", "Light jet", "Turboprop", "Piston", "Helicopter", "Other", "Unknown"}, [aircraft_class]), Int64.Type)
+				in
+				    #"Added class_order"
+
+	annotation PBI_ResultType = Table
+

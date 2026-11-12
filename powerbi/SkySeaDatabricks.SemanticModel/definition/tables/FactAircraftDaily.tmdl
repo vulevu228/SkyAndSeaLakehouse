@@ -1,0 +1,80 @@
+table FactAircraftDaily
+	lineageTag: a59bee8c-0a63-55c1-ad05-bd247420a1e7
+
+	column date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 0faebf67-3667-54c8-a4c1-9c02e9b45453
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column icao24
+		dataType: string
+		lineageTag: 2c190276-38e6-5d35-8484-5a3a958d55da
+		summarizeBy: none
+		sourceColumn: icao24
+
+		annotation SummarizationSetBy = Automatic
+
+	column snapshots
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 2efbb74b-eae5-55a5-8454-a829faa6ab9a
+		summarizeBy: none
+		sourceColumn: snapshots
+
+		annotation SummarizationSetBy = Automatic
+
+	column airborne_snapshots
+		dataType: int64
+		formatString: #,##0
+		lineageTag: c490e302-e99c-53ea-9d23-cb51a46cdad2
+		summarizeBy: none
+		sourceColumn: airborne_snapshots
+
+		annotation SummarizationSetBy = Automatic
+
+	column max_baro_altitude_m
+		dataType: double
+		formatString: #,##0
+		lineageTag: b7559365-3125-5355-a04d-096b393aa612
+		summarizeBy: none
+		sourceColumn: max_baro_altitude_m
+
+		annotation SummarizationSetBy = Automatic
+
+	column avg_airborne_speed_kmh
+		dataType: double
+		formatString: #,##0
+		lineageTag: fdbf540d-c15f-5edd-84c8-5ce87482ae62
+		summarizeBy: none
+		sourceColumn: avg_airborne_speed_kmh
+
+		annotation SummarizationSetBy = Automatic
+
+	column emergency_snapshots
+		dataType: int64
+		formatString: 0
+		lineageTag: cf1837b1-802f-5281-a2c7-f63401c1dfc1
+		summarizeBy: none
+		sourceColumn: emergency_snapshots
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FactAircraftDaily = m
+		mode: import
+		source =
+				let
+				    Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+				    Catalog = Source{[Name = "workspace"]}[Data],
+				    Schema = Catalog{[Name = "skysea"]}[Data],
+				    Data = Schema{[Name = "fact_aircraft_daily"]}[Data],
+				    Kept = Table.SelectColumns(Data, {"date_key", "icao24", "snapshots", "airborne_snapshots", "max_baro_altitude_m", "avg_airborne_speed_kmh", "emergency_snapshots"}),
+				    Typed = Table.TransformColumnTypes(Kept, {{"date_key", Int64.Type}, {"icao24", type text}, {"snapshots", Int64.Type}, {"airborne_snapshots", Int64.Type}, {"max_baro_altitude_m", type number}, {"avg_airborne_speed_kmh", type number}, {"emergency_snapshots", Int64.Type}})
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,97 @@
+table DimShip
+	lineageTag: 52ddd919-02d1-550c-bd7d-672330d48d73
+
+	column mmsi
+		dataType: string
+		lineageTag: c905e5ef-c20c-5838-b4a3-c6b652a23e6c
+		summarizeBy: none
+		sourceColumn: mmsi
+
+		annotation SummarizationSetBy = Automatic
+
+	column ship_name
+		dataType: string
+		lineageTag: a4e3f9a1-bbed-5eee-bbd8-c19f94e58a67
+		summarizeBy: none
+		sourceColumn: ship_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column ship_category
+		dataType: string
+		lineageTag: 094268aa-952b-5664-a78d-d054bd7fb5dc
+		summarizeBy: none
+		sourceColumn: ship_category
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_seagoing
+		dataType: boolean
+		lineageTag: 69512e00-0cc0-5638-bfcf-7ccda7802d66
+		summarizeBy: none
+		sourceColumn: is_seagoing
+
+		annotation SummarizationSetBy = Automatic
+
+	column length_m
+		dataType: double
+		formatString: 0
+		lineageTag: 97b92d93-cbf7-56c5-b29d-40eed8788ff7
+		summarizeBy: none
+		sourceColumn: length_m
+
+		annotation SummarizationSetBy = Automatic
+
+	column mmsi_kind
+		dataType: string
+		lineageTag: eaaa4af7-3782-5ef2-ba12-509d18be192f
+		summarizeBy: none
+		sourceColumn: mmsi_kind
+
+		annotation SummarizationSetBy = Automatic
+
+	column ship_group
+		dataType: string
+		lineageTag: ed74f541-fcb9-5edd-b520-0a227235c6d9
+		summarizeBy: none
+		sourceColumn: ship_group
+		sortByColumn: group_order
+
+		annotation SummarizationSetBy = Automatic
+
+	column group_order
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 7861638c-3479-5267-a197-0b8a2b6e3eb2
+		summarizeBy: none
+		sourceColumn: group_order
+
+		annotation SummarizationSetBy = Automatic
+
+	column ship_label
+		dataType: string
+		lineageTag: ecf1937b-4e56-5688-87e6-67d870240060
+		summarizeBy: none
+		sourceColumn: ship_label
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimShip = m
+		mode: import
+		source =
+				let
+				    Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+				    Catalog = Source{[Name = "workspace"]}[Data],
+				    Schema = Catalog{[Name = "skysea"]}[Data],
+				    Data = Schema{[Name = "dim_ship"]}[Data],
+				    Kept = Table.SelectColumns(Data, {"mmsi", "ship_name", "ship_category", "is_seagoing", "length_m", "mmsi_kind"}),
+				    Typed = Table.TransformColumnTypes(Kept, {{"mmsi", type text}, {"ship_name", type text}, {"ship_category", type text}, {"is_seagoing", type logical}, {"length_m", type number}, {"mmsi_kind", type text}}),
+				    #"Added ship_group" = Table.AddColumn(Typed, "ship_group", each if List.Contains({"cargo"}, [ship_category]) then "Cargo" else if List.Contains({"tanker"}, [ship_category]) then "Tanker" else if List.Contains({"passenger"}, [ship_category]) then "Passenger" else if List.Contains({"fishing"}, [ship_category]) then "Fishing" else if List.Contains({"tug", "towing", "pilot", "port tender", "search and rescue", "law enforcement", "anti-pollution", "medical transport", "dredging / underwater ops", "diving ops"}, [ship_category]) then "Tug & service" else if List.Contains({"sailing", "pleasure craft"}, [ship_category]) then "Leisure" else "Other", type text),
+				    #"Added group_order" = Table.AddColumn(#"Added ship_group", "group_order", each List.PositionOf({"Cargo", "Tanker", "Passenger", "Fishing", "Tug & service", "Leisure", "Other"}, [ship_group]), Int64.Type),
+				    #"Added ship_label" = Table.AddColumn(#"Added group_order", "ship_label", each if [ship_name] = null or [ship_name] = "" then "MMSI " & [mmsi] else [ship_name], type text)
+				in
+				    #"Added ship_label"
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,82 @@
+table FactTrafficHourly
+	lineageTag: d6374152-bd77-52c9-9f80-f4b3fa40e82b
+
+	column date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: e81f2210-1792-57f1-80b7-88b5ac775ea4
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column hour_utc
+		dataType: dateTime
+		formatString: dd mmm yyyy hh:nn
+		lineageTag: b2d3cd19-0bdd-5711-a8a8-bca54d9e09e4
+		summarizeBy: none
+		sourceColumn: hour_utc
+
+		annotation SummarizationSetBy = Automatic
+
+	column hour_of_day
+		dataType: int64
+		formatString: 00
+		lineageTag: 82fea540-a3aa-5bce-a2e8-8df8937f21d7
+		summarizeBy: none
+		sourceColumn: hour_of_day
+
+		annotation SummarizationSetBy = Automatic
+
+	column aircraft
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 5cd06815-9207-586b-9268-49f1a64f9412
+		summarizeBy: none
+		sourceColumn: aircraft
+
+		annotation SummarizationSetBy = Automatic
+
+	column aircraft_airborne
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 8da662f3-2c57-5d54-9949-b671a5bad76a
+		summarizeBy: none
+		sourceColumn: aircraft_airborne
+
+		annotation SummarizationSetBy = Automatic
+
+	column ships
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 4daad268-d05b-5599-83ff-faffcb79bd7f
+		summarizeBy: none
+		sourceColumn: ships
+
+		annotation SummarizationSetBy = Automatic
+
+	column ships_moving
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 4d69e748-af29-5a20-9d40-9471746c8918
+		summarizeBy: none
+		sourceColumn: ships_moving
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FactTrafficHourly = m
+		mode: import
+		source =
+				let
+				    Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+				    Catalog = Source{[Name = "workspace"]}[Data],
+				    Schema = Catalog{[Name = "skysea"]}[Data],
+				    Data = Schema{[Name = "fact_traffic_hourly"]}[Data],
+				    Kept = Table.SelectColumns(Data, {"date_key", "hour_utc", "hour_of_day", "aircraft", "aircraft_airborne", "ships", "ships_moving"}),
+				    Typed = Table.TransformColumnTypes(Kept, {{"date_key", Int64.Type}, {"hour_of_day", Int64.Type}, {"aircraft", Int64.Type}, {"aircraft_airborne", Int64.Type}, {"ships", Int64.Type}, {"ships_moving", Int64.Type}}),
+				    #"UTC datetime" = Table.TransformColumns(Typed, {{"hour_utc", each if _ is datetimezone then DateTimeZone.RemoveZone(DateTimeZone.SwitchZone(_, 0)) else _, type datetime}})
+				in
+				    #"UTC datetime"
+
+	annotation PBI_ResultType = Table
+

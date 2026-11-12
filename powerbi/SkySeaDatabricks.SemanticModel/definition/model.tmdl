@@ -1,0 +1,31 @@
+model Model
+	culture: en-GB
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-GB
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["DatabricksHost","DatabricksHttpPath","DimDate","DimAircraft","DimAircraftType","DimShip","DimPort","PortPick","FactAircraftDaily","FactShipDaily","FactTrafficHourly","FactPortCalls","FactQuality","AircraftPhoto","_Measures"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table DimDate
+ref table DimAircraft
+ref table DimAircraftType
+ref table DimShip
+ref table DimPort
+ref table PortPick
+ref table FactAircraftDaily
+ref table FactShipDaily
+ref table FactTrafficHourly
+ref table FactPortCalls
+ref table FactQuality
+ref table _Measures
+ref table AircraftPhoto
+
+ref cultureInfo en-GB
+

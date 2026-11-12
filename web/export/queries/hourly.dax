@@ -1,0 +1,3 @@
+EVALUATE
+SUMMARIZECOLUMNS(DimDate[date], FactTrafficHourly[hour_of_day],
+    "air", [Airborne per Hour], "sea", [Ships Moving per Hour], "ships", AVERAGE(FactTrafficHourly[ships]))

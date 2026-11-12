@@ -1,0 +1,28 @@
+[project]
+name = "skysea"
+version = "0.2.0"
+description = "Sky & Sea Lakehouse: OpenSky flights + AIS ships, a Polars + Parquet medallion pipeline on Windows"
+requires-python = ">=3.12"
+# 0.1.0 was PySpark + Delta in WSL (kept in archive/pyspark). 0.2.0 = native Windows, Polars only.
+dependencies = [
+    "polars>=1.30",
+    # Windows has no system time-zone database: without tzdata, turning a UTC timestamp into a
+    # Python datetime fails with ZoneInfoNotFoundError (Linux/WSL reads /usr/share/zoneinfo).
+    "tzdata",
+    # lesson 4: gold -> PostgreSQL serving copy (COPY), password from pgpass.conf
+    "psycopg[binary]>=3.2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

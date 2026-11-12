@@ -1,0 +1,2 @@
+EVALUATE
+ROW("first", MIN(DimDate[date]), "last", MAX(DimDate[date]), "days", [Days With Data], "all_median", [Dwell Median])

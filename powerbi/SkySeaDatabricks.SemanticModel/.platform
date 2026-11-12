@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "SkySeaDatabricks"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "020cc2d9-c9a3-553f-9814-134e0e493b78"
+  }
+}

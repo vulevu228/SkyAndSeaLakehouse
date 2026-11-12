@@ -1,0 +1,5 @@
+EVALUATE
+GENERATE(
+    VALUES(DimAircraft[typecode]),
+    CALCULATETABLE(
+        TOPN(6, FILTER(ADDCOLUMNS(VALUES(DimAircraft[operator]), "n", [Type Aircraft]), DimAircraft[operator] <> "" && NOT ISBLANK([n])), [n], DESC)))

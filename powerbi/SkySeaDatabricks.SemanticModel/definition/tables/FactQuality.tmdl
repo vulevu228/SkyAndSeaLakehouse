@@ -1,0 +1,89 @@
+table FactQuality
+	lineageTag: 43109e9b-4c77-5bc5-8f98-924d592af939
+
+	column dataset
+		dataType: string
+		lineageTag: 41835f1c-b85f-5380-bd9f-cdfc3e80166b
+		summarizeBy: none
+		sourceColumn: dataset
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 32f1fe4e-6cbc-5e20-9154-6fc686099dba
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column bronze_rows
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 66e5d962-67cd-5a0c-a34f-0ff7d431db48
+		summarizeBy: none
+		sourceColumn: bronze_rows
+
+		annotation SummarizationSetBy = Automatic
+
+	column silver_rows
+		dataType: int64
+		formatString: #,##0
+		lineageTag: ded932f1-b49a-5f83-b63d-391de245e5b5
+		summarizeBy: none
+		sourceColumn: silver_rows
+
+		annotation SummarizationSetBy = Automatic
+
+	column dropped_rows
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 6d3fc954-c745-5b27-b850-efdce2d401cc
+		summarizeBy: none
+		sourceColumn: dropped_rows
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag_stale
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 69b7f0bd-5f9b-5af7-a3ac-48806b4d367c
+		summarizeBy: none
+		sourceColumn: flag_stale
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag_speed
+		dataType: int64
+		formatString: #,##0
+		lineageTag: a496d4f2-6b3d-5fc1-98a3-1c72d1c6ffa3
+		summarizeBy: none
+		sourceColumn: flag_speed
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag_altitude
+		dataType: int64
+		formatString: #,##0
+		lineageTag: e735a885-4745-53a4-a7ab-9d2930ca5ca0
+		summarizeBy: none
+		sourceColumn: flag_altitude
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FactQuality = m
+		mode: import
+		source =
+				let
+				    Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+				    Catalog = Source{[Name = "workspace"]}[Data],
+				    Schema = Catalog{[Name = "skysea"]}[Data],
+				    Data = Schema{[Name = "fact_quality_daily"]}[Data],
+				    Kept = Table.SelectColumns(Data, {"dataset", "date_key", "bronze_rows", "silver_rows", "dropped_rows", "flag_stale", "flag_speed", "flag_altitude"}),
+				    Typed = Table.TransformColumnTypes(Kept, {{"dataset", type text}, {"date_key", Int64.Type}, {"bronze_rows", Int64.Type}, {"silver_rows", Int64.Type}, {"dropped_rows", Int64.Type}, {"flag_stale", Int64.Type}, {"flag_speed", Int64.Type}, {"flag_altitude", Int64.Type}})
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

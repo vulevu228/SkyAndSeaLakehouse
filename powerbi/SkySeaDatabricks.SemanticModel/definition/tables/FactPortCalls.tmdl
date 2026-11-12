@@ -1,0 +1,116 @@
+table FactPortCalls
+	lineageTag: facda8d2-3045-5626-be2d-94122163e83a
+
+	column call_id
+		dataType: string
+		lineageTag: 51429d54-9506-5bba-9391-5c9f4bfad460
+		summarizeBy: none
+		sourceColumn: call_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column mmsi
+		dataType: string
+		lineageTag: c813eb4c-fc69-508f-8c25-d7877a192c12
+		summarizeBy: none
+		sourceColumn: mmsi
+
+		annotation SummarizationSetBy = Automatic
+
+	column locode
+		dataType: string
+		lineageTag: 8aab4ce7-0d65-5961-ba80-5717f770a96d
+		summarizeBy: none
+		sourceColumn: locode
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 86c8cc97-1d53-5698-b684-019e5b7b82fe
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column arrival
+		dataType: dateTime
+		formatString: dd mmm hh:nn
+		lineageTag: fa5149b7-c385-5f52-8c68-63dbc7070dab
+		summarizeBy: none
+		sourceColumn: arrival
+
+		annotation SummarizationSetBy = Automatic
+
+	column departure
+		dataType: dateTime
+		formatString: dd mmm hh:nn
+		lineageTag: c362b6a6-8a94-5562-9f5d-678be3057421
+		summarizeBy: none
+		sourceColumn: departure
+
+		annotation SummarizationSetBy = Automatic
+
+	column duration_h
+		dataType: double
+		formatString: 0.0
+		lineageTag: 783c715e-6bea-5cd1-a91a-53aac41eb4d8
+		summarizeBy: none
+		sourceColumn: duration_h
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_truncated
+		dataType: boolean
+		lineageTag: a026bf5b-f2f9-5b26-8699-638b6bf20792
+		summarizeBy: none
+		sourceColumn: is_truncated
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_seagoing
+		dataType: boolean
+		lineageTag: 45ffa5d1-c682-5a6f-906d-f2ab9d40c3bc
+		summarizeBy: none
+		sourceColumn: is_seagoing
+
+		annotation SummarizationSetBy = Automatic
+
+	column dwell_band
+		dataType: string
+		lineageTag: f38c6d4c-ae2a-5f0e-ab66-db57d968a33f
+		summarizeBy: none
+		sourceColumn: dwell_band
+		sortByColumn: band_order
+
+		annotation SummarizationSetBy = Automatic
+
+	column band_order
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 74bc5ea6-9d57-5fef-9d1d-55308f5aaa76
+		summarizeBy: none
+		sourceColumn: band_order
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FactPortCalls = m
+		mode: import
+		source =
+				let
+				    Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+				    Catalog = Source{[Name = "workspace"]}[Data],
+				    Schema = Catalog{[Name = "skysea"]}[Data],
+				    Data = Schema{[Name = "fact_port_calls"]}[Data],
+				    Kept = Table.SelectColumns(Data, {"call_id", "mmsi", "locode", "date_key", "arrival", "departure", "duration_h", "is_truncated", "is_seagoing"}),
+				    Typed = Table.TransformColumnTypes(Kept, {{"call_id", type text}, {"mmsi", type text}, {"locode", type text}, {"date_key", Int64.Type}, {"duration_h", type number}, {"is_truncated", type logical}, {"is_seagoing", type logical}}),
+				    #"UTC datetime" = Table.TransformColumns(Typed, {{"arrival", each if _ is datetimezone then DateTimeZone.RemoveZone(DateTimeZone.SwitchZone(_, 0)) else _, type datetime}, {"departure", each if _ is datetimezone then DateTimeZone.RemoveZone(DateTimeZone.SwitchZone(_, 0)) else _, type datetime}}),
+				    #"Added dwell_band" = Table.AddColumn(#"UTC datetime", "dwell_band", each if [duration_h] < 12 then "0–12 h" else if [duration_h] < 24 then "12–24 h" else if [duration_h] < 48 then "24–48 h" else "48 h +", type text),
+				    #"Added band_order" = Table.AddColumn(#"Added dwell_band", "band_order", each List.PositionOf({"0–12 h", "12–24 h", "24–48 h", "48 h +"}, [dwell_band]), Int64.Type)
+				in
+				    #"Added band_order"
+
+	annotation PBI_ResultType = Table
+

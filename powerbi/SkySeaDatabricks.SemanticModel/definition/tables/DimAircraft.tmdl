@@ -1,0 +1,75 @@
+table DimAircraft
+	lineageTag: f0914a31-430b-5944-8650-af5a99c97962
+
+	column icao24
+		dataType: string
+		lineageTag: 42207363-ee8a-585b-8346-5ee47aa82dfb
+		summarizeBy: none
+		sourceColumn: icao24
+
+		annotation SummarizationSetBy = Automatic
+
+	column registration
+		dataType: string
+		lineageTag: 879dcc6d-6dba-5daa-93ae-912a62aea0e9
+		summarizeBy: none
+		sourceColumn: registration
+
+		annotation SummarizationSetBy = Automatic
+
+	column typecode
+		dataType: string
+		lineageTag: 9ae1c1b0-cac1-5b81-90f0-7cd6d47466c9
+		summarizeBy: none
+		sourceColumn: typecode
+
+		annotation SummarizationSetBy = Automatic
+
+	column operator
+		dataType: string
+		lineageTag: c75839d4-0fba-55c6-9f52-7af342f756bc
+		summarizeBy: none
+		sourceColumn: operator
+
+		annotation SummarizationSetBy = Automatic
+
+	column origin_country
+		dataType: string
+		lineageTag: a89ee70b-b3e7-58c1-b30e-f754fdc5f3d2
+		summarizeBy: none
+		sourceColumn: origin_country
+
+		annotation SummarizationSetBy = Automatic
+
+	column built_year
+		dataType: int64
+		formatString: 0
+		lineageTag: 1580dc1e-468a-5b9a-8f55-b51466cbb759
+		summarizeBy: none
+		sourceColumn: built_year
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_test_transponder
+		dataType: boolean
+		lineageTag: a64425e4-6055-58ad-8565-35f70d763859
+		summarizeBy: none
+		sourceColumn: is_test_transponder
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimAircraft = m
+		mode: import
+		source =
+				let
+				    Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+				    Catalog = Source{[Name = "workspace"]}[Data],
+				    Schema = Catalog{[Name = "skysea"]}[Data],
+				    Data = Schema{[Name = "dim_aircraft"]}[Data],
+				    Kept = Table.SelectColumns(Data, {"icao24", "registration", "typecode", "operator", "origin_country", "built_year", "is_test_transponder"}),
+				    Typed = Table.TransformColumnTypes(Kept, {{"icao24", type text}, {"registration", type text}, {"typecode", type text}, {"operator", type text}, {"origin_country", type text}, {"built_year", Int64.Type}, {"is_test_transponder", type logical}})
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

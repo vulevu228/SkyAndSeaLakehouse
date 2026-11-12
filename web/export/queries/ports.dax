@@ -1,0 +1,9 @@
+EVALUATE
+FILTER(
+    ADDCOLUMNS(
+        SELECTCOLUMNS(DimPort, "locode", DimPort[locode], "name", DimPort[port_name], "country", DimPort[country], "lat", DimPort[port_lat], "lon", DimPort[port_lon]),
+        "calls", CALCULATE([Calls], DimPort[locode] = EARLIER([locode])),
+        "ships", CALCULATE([Port Ships], DimPort[locode] = EARLIER([locode])),
+        "median", CALCULATE([Dwell Median], DimPort[locode] = EARLIER([locode])),
+        "long", CALCULATE([Long Stays], DimPort[locode] = EARLIER([locode]))),
+    NOT ISBLANK([calls]))

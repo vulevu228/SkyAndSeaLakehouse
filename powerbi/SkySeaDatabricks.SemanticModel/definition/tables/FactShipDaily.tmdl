@@ -1,0 +1,62 @@
+table FactShipDaily
+	lineageTag: 1ba12b7c-62bf-5d82-a45f-330d21c7bceb
+
+	column date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 1b0236bf-02bf-548e-b0e9-1e809bd0e2c5
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column mmsi
+		dataType: string
+		lineageTag: d3a0c308-70be-55da-948f-74b4930a14d9
+		summarizeBy: none
+		sourceColumn: mmsi
+
+		annotation SummarizationSetBy = Automatic
+
+	column position_windows
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 6a8bed66-af62-5385-9e59-fe01ba4d3348
+		summarizeBy: none
+		sourceColumn: position_windows
+
+		annotation SummarizationSetBy = Automatic
+
+	column avg_sog_knots
+		dataType: double
+		formatString: 0.0
+		lineageTag: 360d4ac5-1262-536e-bb4c-28b9f4d95b61
+		summarizeBy: none
+		sourceColumn: avg_sog_knots
+
+		annotation SummarizationSetBy = Automatic
+
+	column stationary_windows
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 3e975d1f-c82d-54ce-b471-bc5d8c78dbd3
+		summarizeBy: none
+		sourceColumn: stationary_windows
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FactShipDaily = m
+		mode: import
+		source =
+				let
+				    Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+				    Catalog = Source{[Name = "workspace"]}[Data],
+				    Schema = Catalog{[Name = "skysea"]}[Data],
+				    Data = Schema{[Name = "fact_ship_daily"]}[Data],
+				    Kept = Table.SelectColumns(Data, {"date_key", "mmsi", "position_windows", "avg_sog_knots", "stationary_windows"}),
+				    Typed = Table.TransformColumnTypes(Kept, {{"date_key", Int64.Type}, {"mmsi", type text}, {"position_windows", Int64.Type}, {"avg_sog_knots", type number}, {"stationary_windows", Int64.Type}})
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

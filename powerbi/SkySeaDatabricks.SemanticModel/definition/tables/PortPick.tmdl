@@ -1,0 +1,52 @@
+table PortPick
+	lineageTag: 4c17693e-1978-5df9-b4ac-de1adeab6369
+
+	column locode
+		dataType: string
+		lineageTag: 65445def-7cb6-5b7d-bbca-9165ae518799
+		summarizeBy: none
+		sourceColumn: locode
+
+		annotation SummarizationSetBy = Automatic
+
+	column port_name
+		dataType: string
+		lineageTag: 88b58dad-4b17-5c6d-b7bd-46206cd65e57
+		summarizeBy: none
+		sourceColumn: port_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column country
+		dataType: string
+		lineageTag: 10b4089d-a17d-57a2-9782-54dd673dc9d3
+		summarizeBy: none
+		sourceColumn: country
+
+		annotation SummarizationSetBy = Automatic
+
+	column port_pick
+		dataType: string
+		lineageTag: 35342d67-f2f3-5672-b9ea-fe26c568360e
+		summarizeBy: none
+		sourceColumn: port_pick
+
+		annotation SummarizationSetBy = Automatic
+
+	partition PortPick = m
+		mode: import
+		source =
+				let
+				    Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+				    Catalog = Source{[Name = "workspace"]}[Data],
+				    Schema = Catalog{[Name = "skysea"]}[Data],
+				    Data = Schema{[Name = "dim_port"]}[Data],
+				    Kept = Table.SelectColumns(Data, {"locode", "port_name", "country"}),
+				    Typed = Table.TransformColumnTypes(Kept, {{"locode", type text}, {"port_name", type text}, {"country", type text}}),
+				    #"Added port_pick" = Table.AddColumn(Typed, "port_pick", each [port_name] & " · " & [locode], type text),
+				    #"Sorted ports" = Table.Sort(#"Added port_pick", {{"port_pick", Order.Ascending}})
+				in
+				    #"Sorted ports"
+
+	annotation PBI_ResultType = Table
+

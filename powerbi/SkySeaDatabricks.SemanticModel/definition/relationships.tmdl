@@ -1,0 +1,40 @@
+relationship 523bc80f-29bf-51c6-a8d8-ba9555393760
+	fromColumn: FactAircraftDaily.date_key
+	toColumn: DimDate.date_key
+
+relationship d0d9bf22-1cef-5a46-acec-d44ca6027768
+	fromColumn: FactAircraftDaily.icao24
+	toColumn: DimAircraft.icao24
+
+relationship 6950485f-cd57-5f4a-ba42-177fe23e883c
+	fromColumn: DimAircraft.typecode
+	toColumn: DimAircraftType.typecode
+
+relationship bd5c63bb-0080-51fa-bfac-4b9ec17eeb21
+	fromColumn: FactShipDaily.date_key
+	toColumn: DimDate.date_key
+
+relationship 6f430961-eb55-5119-9b41-dcbc08cd2dc8
+	fromColumn: FactShipDaily.mmsi
+	toColumn: DimShip.mmsi
+
+relationship 775e4214-b0c5-5f51-9308-f4e9ad941e7d
+	fromColumn: FactTrafficHourly.date_key
+	toColumn: DimDate.date_key
+
+relationship f26db7b6-16df-5bcc-ae24-388d68ff1b77
+	fromColumn: FactPortCalls.date_key
+	toColumn: DimDate.date_key
+
+relationship e8843625-aced-5de3-92ae-3f239ee4ff7d
+	fromColumn: FactPortCalls.mmsi
+	toColumn: DimShip.mmsi
+
+relationship a5b2c286-47a2-5dab-97d7-d85c3574d13e
+	fromColumn: FactPortCalls.locode
+	toColumn: DimPort.locode
+
+relationship d276bbf9-fbbc-5ef7-baad-93afba923258
+	fromColumn: FactQuality.date_key
+	toColumn: DimDate.date_key
+

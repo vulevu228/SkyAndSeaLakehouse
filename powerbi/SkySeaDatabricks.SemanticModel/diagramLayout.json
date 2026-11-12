@@ -1,0 +1,191 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 520,
+            "y": 0
+          },
+          "nodeIndex": "DimDate",
+          "nodeLineageTag": "289e66a6-7897-5499-8a9e-c08eaa89d692",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 380
+          },
+          "nodeIndex": "DimAircraft",
+          "nodeLineageTag": "f0914a31-430b-5944-8650-af5a99c97962",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 0
+          },
+          "nodeIndex": "DimAircraftType",
+          "nodeLineageTag": "fb57b541-ff7d-5519-9639-75444fcb68b7",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1040,
+            "y": 760
+          },
+          "nodeIndex": "DimShip",
+          "nodeLineageTag": "52ddd919-02d1-550c-bd7d-672330d48d73",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1300,
+            "y": 380
+          },
+          "nodeIndex": "DimPort",
+          "nodeLineageTag": "d9d1e0b9-b074-593b-ba7f-b8c845471345",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1300,
+            "y": 0
+          },
+          "nodeIndex": "PortPick",
+          "nodeLineageTag": "4c17693e-1978-5df9-b4ac-de1adeab6369",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 260,
+            "y": 380
+          },
+          "nodeIndex": "FactAircraftDaily",
+          "nodeLineageTag": "a59bee8c-0a63-55c1-ad05-bd247420a1e7",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 780,
+            "y": 380
+          },
+          "nodeIndex": "FactShipDaily",
+          "nodeLineageTag": "1ba12b7c-62bf-5d82-a45f-330d21c7bceb",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 520,
+            "y": 380
+          },
+          "nodeIndex": "FactTrafficHourly",
+          "nodeLineageTag": "d6374152-bd77-52c9-9f80-f4b3fa40e82b",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1040,
+            "y": 380
+          },
+          "nodeIndex": "FactPortCalls",
+          "nodeLineageTag": "facda8d2-3045-5626-be2d-94122163e83a",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 780,
+            "y": 0
+          },
+          "nodeIndex": "FactQuality",
+          "nodeLineageTag": "43109e9b-4c77-5bc5-8f98-924d592af939",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 260,
+            "y": 0
+          },
+          "nodeIndex": "AircraftPhoto",
+          "nodeLineageTag": "38af1630-044e-5ecb-9763-0e333fda3fda",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1040,
+            "y": 0
+          },
+          "nodeIndex": "_Measures",
+          "nodeLineageTag": "cce6d3c6-4b74-5f18-a4f2-56f7a04092b6",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

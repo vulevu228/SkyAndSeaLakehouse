@@ -1,0 +1,6 @@
+EVALUATE
+GENERATE(
+    CALCULATETABLE(SUMMARIZE(FactPortCalls, FactPortCalls[locode], DimShip[ship_group]), FactPortCalls[is_seagoing] = TRUE(), NOT ISBLANK(FactPortCalls[locode])),
+    CALCULATETABLE(
+        TOPN(10, ADDCOLUMNS(SUMMARIZE(FactPortCalls, DimShip[ship_label]), "h", CALCULATE(MAX(FactPortCalls[duration_h]))), [h], DESC),
+        FactPortCalls[is_seagoing] = TRUE()))

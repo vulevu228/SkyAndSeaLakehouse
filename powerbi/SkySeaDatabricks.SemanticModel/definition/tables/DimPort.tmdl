@@ -1,0 +1,78 @@
+table DimPort
+	lineageTag: d9d1e0b9-b074-593b-ba7f-b8c845471345
+
+	column locode
+		dataType: string
+		lineageTag: 9df58731-039f-5d74-a477-38e83624f27e
+		summarizeBy: none
+		sourceColumn: locode
+
+		annotation SummarizationSetBy = Automatic
+
+	column port_name
+		dataType: string
+		lineageTag: 22d0b9f4-18a5-506b-8009-47ced0f0bcbe
+		summarizeBy: none
+		sourceColumn: port_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column country
+		dataType: string
+		lineageTag: cc3c591d-7fca-5da4-819e-ac76cfc94240
+		summarizeBy: none
+		sourceColumn: country
+
+		annotation SummarizationSetBy = Automatic
+
+	column port_lat
+		dataType: double
+		formatString: 0.0000
+		lineageTag: 6031b8da-d4b7-52f5-8a24-32c5a34b302b
+		summarizeBy: none
+		sourceColumn: port_lat
+
+		annotation SummarizationSetBy = Automatic
+
+	column port_lon
+		dataType: double
+		formatString: 0.0000
+		lineageTag: 767c37c6-75ba-51fa-bd5b-6fc15e58021c
+		summarizeBy: none
+		sourceColumn: port_lon
+
+		annotation SummarizationSetBy = Automatic
+
+	column dest_ships
+		dataType: int64
+		formatString: #,##0
+		lineageTag: c0a4370c-6c46-5713-bccd-e107c4d4e8e6
+		summarizeBy: none
+		sourceColumn: dest_ships
+
+		annotation SummarizationSetBy = Automatic
+
+	column port_label
+		dataType: string
+		lineageTag: 18e24ac2-04c4-581f-8fa7-00597a47e705
+		summarizeBy: none
+		sourceColumn: port_label
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimPort = m
+		mode: import
+		source =
+				let
+				    Source = Databricks.Catalogs(DatabricksHost, DatabricksHttpPath, [Catalog = null, Database = null, EnableAutomaticProxyDiscovery = null]),
+				    Catalog = Source{[Name = "workspace"]}[Data],
+				    Schema = Catalog{[Name = "skysea"]}[Data],
+				    Data = Schema{[Name = "dim_port"]}[Data],
+				    Kept = Table.SelectColumns(Data, {"locode", "port_name", "country", "port_lat", "port_lon", "dest_ships"}),
+				    Typed = Table.TransformColumnTypes(Kept, {{"locode", type text}, {"port_name", type text}, {"country", type text}, {"port_lat", type number}, {"port_lon", type number}, {"dest_ships", Int64.Type}}),
+				    #"Added port_label" = Table.AddColumn(Typed, "port_label", each [port_name] & " · " & [locode], type text)
+				in
+				    #"Added port_label"
+
+	annotation PBI_ResultType = Table
+
